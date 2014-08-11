@@ -1,4 +1,4 @@
 DynamicControllerHandler
 ========================
 
-Handling missing controllers and manage request.
+Handles missing controllers and manages requests.
