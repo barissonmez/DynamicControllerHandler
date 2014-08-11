@@ -1,0 +1,73 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>DYNAMIC-Form</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-theme.min.css" rel="stylesheet" />
+
+
+</head>
+<body>
+    <div class="container">
+        <h2>DYNAMIC-Form</h2>
+        <h3>@ViewBag.EntityName - @ViewBag.EntityId</h3>
+
+        <form id="myForm" method="POST" class="form-signin">
+            <input type="hidden" id="entityId" value="@ViewBag.EntityId" />
+            <h2 class="form-signin-heading">Form</h2>
+            <div id="formElements">
+                
+            </div>
+            @*<input type="text" class="input-block-level" placeholder="Email address">
+            <input type="password" class="input-block-level" placeholder="Password">
+            <label class="checkbox">
+                <input type="checkbox" value="remember-me"> Remember me
+            </label>*@
+            <button class="btn btn-large btn-primary" type="submit">Sign in</button>
+        </form>
+
+    </div>
+    <script src="~/Scripts/jquery-2.1.1.min.js"></script>
+    <script src="~/Scripts/jquery-ui-1.10.4.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            var metadataUrl = "@string.Format("/dynamic/metadata?entity={0}", @ViewBag.EntityName)";
+
+            $.get(metadataUrl, function (data) {
+
+                console.log(data);
+
+                var $formElementContainer = $('#formElements');
+                var formGroup;
+
+                $.each(data, function (i, item) {
+
+                    if (item.ControlType == "TextBox") {
+
+                        formGroup = "<label for='" + item.PropertyName + "'>" + item.Title + "</label>" +
+                            "<input type='text' id='" + item.PropertyName + "' name='" + item.PropertyName + "' class='input-block-level' placeholder='" + item.Title + "'><br />";
+                        $formElementContainer.append(formGroup);
+                    }
+
+                    if (item.ControlType == "CheckBox") {
+
+                        formGroup = "<label for='" + item.PropertyName + "'>" + item.Title + "</label>" +
+                            "<input type='checkbox' id='" + item.PropertyName + "' name='" + item.PropertyName + "'>" + item.Title + "<br />";
+                        $formElementContainer.append(formGroup);
+                    }
+                });
+
+            });
+        });
+    </script>
+</body>
+</html>
