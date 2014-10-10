@@ -1,0 +1,114 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+@model VeriPark.PenaltyCalculation.Models.PenaltyCalculationOutModel
+<fieldset>
+
+    <!-- Form Name -->
+    <legend></legend>
+
+    <!-- Text input-->
+    <div class="form-group">
+        <label class="col-md-4 control-label" for="txtCheckOutDate">Check Out Date</label>
+        <div class="col-md-5">
+            <input @*id="txtCheckOutDate" name="txtCheckOutDate"*@ type="hidden">
+            <input id="txtCheckOutDate" name="txtCheckOutDate" class="form-control input-md date-picker" type="datetime">
+            <span class="help-block">Date the book checked out.</span>
+        </div>
+    </div>
+
+    <!-- Text input-->
+    <div class="form-group">
+        <label class="col-md-4 control-label" for="txtReturnDate">Return Date</label>
+        <div class="col-md-5">
+            @*<input id="txtReturnDate" name="txtReturnDate" type="hidden">*@
+            <input id="txtReturnDate" name="txtReturnDate" class="form-control input-md date-picker" type="datetime">
+            <span class="help-block">Date the book returned.</span>
+        </div>
+    </div>
+
+    <!-- Select Basic -->
+    <div class="form-group">
+        <label class="col-md-4 control-label" for="selectCountry">Country</label>
+        <div class="col-md-5">
+            <input id="countryId" type="hidden" value="@Model.Countries.FirstOrDefault().CountryId" />
+            <select id="selectCountry" name="selectCountry" class="form-control">
+                @foreach (var country in Model.Countries.Select((value, index) => new { index, value }))
+                {
+                    <option value="@country.value.CountryId" @(country.index.Equals(0) ? "selected" : null)>@country.value.Name</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <!-- Button -->
+    <div class="form-group" style="margin-top:200px;">
+        <label class="col-md-4 control-label" for="btnCalculate"></label>
+        <div class="col-md-4">
+            <button id="btnCalculate" name="btnCalculate" class="btn btn-primary">Calculate</button>
+        </div>
+    </div>
+
+</fieldset>
+
+<!-- Label Total Business Days-->
+<div class="form-group" style="margin-top:30px;">
+    <label class="col-md-4 control-label">Total Business Days: </label>
+    <div class="col-md-5">
+        <label id="lblTotalDays" class="col-md-4 control-label"> - </label>
+    </div>
+</div>
+
+<!-- Label Total Penalty Fees-->
+<div class="form-group" >
+    <label class="col-md-4 control-label">Total Penalty: </label>
+    <div class="col-md-5">
+        <label id="lblTotalPenalty" class="col-md-4 control-label"> - </label>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        $(document).ready(function() {
+            $("#txtCheckOutDate").datepicker();
+            $("#txtReturnDate").datepicker();
+
+            $('#selectCountry').on('change', function () {
+                $("#countryId").val($(this).val());
+            });
+
+            
+
+
+            $("#btnCalculate").click( function () {
+
+                var data = {
+                    CountryId: $("#countryId").val(),
+                    CheckOutDate: $("#txtCheckOutDate").datepicker('option', { dateFormat: 'dd-mm-yy' }).val(),
+                    ReturnDate: $("#txtReturnDate").datepicker('option', { dateFormat: 'dd-mm-yy' }).val()
+                };
+
+                $.ajax({
+                    url: '/Home/GetResult',
+                    type: 'post',
+                    dataType: 'json',
+                    success: function (result) {
+                        if (typeof result != 'undefined') {
+                            console.log(result);
+                            if (result.IsSuccess == true) {
+                                console.log(result.IsSuccess);
+                                $('#lblTotalDays').html(result.Result.TotalDays);
+                                $('#lblTotalPenalty').html(result.Result.TotalPenalty);
+                            }
+                        }
+                    },
+                    data: data
+                });
+            });
+            
+            
+
+        });
+    </script>
+}
